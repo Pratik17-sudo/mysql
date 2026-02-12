@@ -1,0 +1,17 @@
+-------Group by queries--------
+
+>> select country, sum(score) from customers group by country having sum(score)>800;
+>> select country, sum(score) as total_Score , count(customerid) as total_customers from customers group by country;
+
+
+
+
+-----find the average score for each country consisering only customers with a score not equal to 0 and return only those countries with
+an average score greater than 430---
+
+>>mysql> select country, avg(score) from customers where score!=0 group by country having avg(score)>430;
+
+
+
+
+
