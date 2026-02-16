@@ -6,12 +6,250 @@
 
 
 
------find the average score for each country consisering only customers with a score not equal to 0 and return only those countries with
+1] -----find the average score for each country consisering only customers with a score not equal to 0 and return only those countries with
 an average score greater than 430---
-
->>mysql> select country, avg(score) from customers where score!=0 group by country having avg(score)>430;
-
+>>> select country, avg(score) from customers where score!=0 group by country having avg(score)>430;
 
 
+>>> select DISTINCT country from customers;
 
+
+2] Retrieve top 3 customers with highest score---
+>>select firstname, score from customers order by score desc limit 3;
+
+
++-----------+-------+
+| firstname | score |
++-----------+-------+
+| Kevin     |   900 |
+| Mary      |   750 |
+| Mark      |   500 |
+
+______________________________
+
+DDL 
+
+-- Create table---
+
+create table persons(
+id int primary key,
+person_name varchar(30) not null ,
+birth_date date,
+phone varchar(15) not null
+)
+
+--Alter table--
+
+alter table persons
+add email varchar(50) not null
+
+--------------------------------
+
+alter table persons 
+drop column email;
+
+---------------------------------
+Update command 
+
+
+mysql> update customers set score=400 where customerid=4;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+----------------------------------------------
+
+retrive all the customers who are from usa and have a score greater than 500
+
+mysql> select * from customers where country="USA" and score>500;
++------------+-----------+----------+---------+-------+
+| customerid | firstname | lastname | country | score |
++------------+-----------+----------+---------+-------+
+|          2 | Kevin     | Brown    | USA     |   900 |
+|          3 | Mary      | NULL     | USA     |   750 |
++------------+-----------+----------+---------+-------+
+
+________________________________________________________________________
+
+retrive all the customers who are from usa or  a score greater than 500
+
+mysql> select * from customers where country="USA" or score>500;
++------------+-----------+----------+---------+-------+
+| customerid | firstname | lastname | country | score |
++------------+-----------+----------+---------+-------+
+|          2 | Kevin     | Brown    | USA     |   900 |
+|          3 | Mary      | NULL     | USA     |   750 |
+|          5 | Anna      | Adams    | USA     |  NULL |
++------------+-----------+----------+---------+-------+
+
+
+______________________________________________________________________________
+
+Retrieve all customers with a score not less than 500
+
+mysql> select * from customers where not score<500;
++------------+-----------+----------+---------+-------+
+| customerid | firstname | lastname | country | score |
++------------+-----------+----------+---------+-------+
+|          2 | Kevin     | Brown    | USA     |   900 |
+|          3 | Mary      | NULL     | USA     |   750 |
++------------+-----------+----------+---------+-------+
+
+_____________________________________________________________________________
+
+Retrieve all the customers whose score falls between 100 and 500
+
+mysql> select * from customers where score between 100 and 500;
++------------+-----------+----------+---------+-------+
+| customerid | firstname | lastname | country | score |
++------------+-----------+----------+---------+-------+
+|          1 | Jossef    | Goldberg | Germany |   350 |
+|          4 | Mark      | Schwarz  | Germany |   400 |
++------------+-----------+----------+---------+-------+
+
+
+>>>>>>for NOT Between 
+
+mysql> select * from customers where score not between 100 and 500;
++------------+-----------+----------+---------+-------+
+| customerid | firstname | lastname | country | score |
++------------+-----------+----------+---------+-------+
+|          2 | Kevin     | Brown    | USA     |   900 |
+|          3 | Mary      | NULL     | USA     |   750 |
++------------+-----------+----------+---------+-------+
+
+
+_______________________________________________________________________________
+
+Retrieve all customers from either germany or USA using IN Operator
+
+
+mysql> select * from customers where country IN("USA","Germany");
++------------+-----------+----------+---------+-------+
+| customerid | firstname | lastname | country | score |
++------------+-----------+----------+---------+-------+
+|          1 | Jossef    | Goldberg | Germany |   350 |
+|          2 | Kevin     | Brown    | USA     |   900 |
+|          3 | Mary      | NULL     | USA     |   750 |
+|          4 | Mark      | Schwarz  | Germany |   400 |
+|          5 | Anna      | Adams    | USA     |  NULL |
++------------+-----------+----------+---------+-------+
+5 rows in set (0.00 sec)
+
+
+________________________________________________________________________________
+
+Like Operator 
+
+Names Starting With 'A'
+
+
+mysql> select * from customers where firstname like 'a%';
++------------+-----------+----------+---------+-------+
+| customerid | firstname | lastname | country | score |
++------------+-----------+----------+---------+-------+
+|          5 | Anna      | Adams    | USA     |  NULL |
++------------+-----------+----------+---------+-------+
+1 row in set (0.00 sec)
+
+_______________________________________________________________________________
+
+
+----Inner JOIN---------------
+
+
+Get all customers along with their orders, but only for customers who have placed an order 
+
+
+select * from customers inner join orders on customers.customerid=orders.customerid;
+
+
++------------+-----------+----------+---------+-------+---------+-----------+------------+---------------+------------+------------+-------------+--------------------+---------------+----------+-------+---------------------+
+| customerid | firstname | lastname | country | score | orderid | productid | customerid | salespersonid | orderdate  | shipdate   | orderstatus | shipaddress        | billaddress   | quantity | sales | creationtime        |
++------------+-----------+----------+---------+-------+---------+-----------+------------+---------------+------------+------------+-------------+--------------------+---------------+----------+-------+---------------------+
+|          1 | Jossef    | Goldberg | Germany |   350 |       3 |       101 |          1 |             5 | 2025-01-10 | 2025-01-25 | Delivered   | 8157 W. Book       | 8157 W. Book  |        2 |    20 | 2025-01-10 18:24:08 |
+|          1 | Jossef    | Goldberg | Germany |   350 |       4 |       105 |          1 |             3 | 2025-01-20 | 2025-01-25 | Shipped     | 5724 Victory Lane  |               |        2 |    60 | 2025-01-20 05:50:33 |
+|          1 | Jossef    | Goldberg | Germany |   350 |       7 |       102 |          1 |             1 | 2025-02-15 | 2025-02-27 | Delivered   | 136 Balboa Court   |               |        2 |    30 | 2025-02-16 06:22:01 |
+|          2 | Kevin     | Brown    | USA     |   900 |       1 |       101 |          2 |             3 | 2025-01-01 | 2025-01-05 | Delivered   | 9833 Mt. Dias Blv. | 1226 Shoe St. |        1 |    10 | 2025-01-01 12:34:56 |
+|          2 | Kevin     | Brown    | USA     |   900 |       5 |       104 |          2 |             5 | 2025-02-01 | 2025-02-05 | Delivered   | NULL               | NULL          |        1 |    25 | 2025-02-01 14:02:41 |
+|          2 | Kevin     | Brown    | USA     |   900 |       9 |       101 |          2 |             3 | 2025-03-10 | 2025-03-15 | Shipped     | 3768 Door Way      |               |        2 |    20 | 2025-03-10 12:59:04 |
+|          3 | Mary      | NULL     | USA     |   750 |       2 |       102 |          3 |             3 | 2025-01-05 | 2025-01-10 | Shipped     | 250 Race Court     | NULL          |        1 |    15 | 2025-01-05 23:22:04 |
+|          3 | Mary      | NULL     | USA     |   750 |       6 |       104 |          3 |             5 | 2025-02-05 | 2025-02-10 | Delivered   | 1792 Belmont Rd.   | NULL          |        2 |    50 | 2025-02-06 15:34:57 |
+|          3 | Mary      | NULL     | USA     |   750 |      10 |       102 |          3 |             5 | 2025-03-15 | 2025-03-20 | Shipped     | NULL               | NULL          |        0 |    60 | 2025-03-16 23:25:15 |
+|          4 | Mark      | Schwarz  | Germany |   400 |       8 |       101 |          4 |             3 | 2025-02-18 | 2025-02-27 | Shipped     | 2947 Vine Lane     | 4311 Clay Rd  |        3 |    90 | 2025-02-18 10:45:22 |
++------------+-----------+----------+---------+-------+---------+-----------+------------+---------------+------------+------------+-------------+--------------------+---------------+----------+-------+---------------------+
+10 rows in set (0.00 sec)
+
+using alias
+
+mysql> select c.firstname, c.country, o.orderdate, o.shipaddress, o.billaddress from customers as c inner join orders as o on c.customerid=o.customerid;
++-----------+---------+------------+--------------------+---------------+
+| firstname | country | orderdate  | shipaddress        | billaddress   |
++-----------+---------+------------+--------------------+---------------+
+| Jossef    | Germany | 2025-01-10 | 8157 W. Book       | 8157 W. Book  |
+| Jossef    | Germany | 2025-01-20 | 5724 Victory Lane  |               |
+| Jossef    | Germany | 2025-02-15 | 136 Balboa Court   |               |
+| Kevin     | USA     | 2025-01-01 | 9833 Mt. Dias Blv. | 1226 Shoe St. |
+| Kevin     | USA     | 2025-02-01 | NULL               | NULL          |
+| Kevin     | USA     | 2025-03-10 | 3768 Door Way      |               |
+| Mary      | USA     | 2025-01-05 | 250 Race Court     | NULL          |
+| Mary      | USA     | 2025-02-05 | 1792 Belmont Rd.   | NULL          |
+| Mary      | USA     | 2025-03-15 | NULL               | NULL          |
+| Mark      | Germany | 2025-02-18 | 2947 Vine Lane     | 4311 Clay Rd  |
++-----------+---------+------------+--------------------+---------------+
+10 rows in set (0.00 sec)
+
+________________________________________________________________________________________________________________
+
+Left JOIN 
+
+Get all the customers along with their orders, including those without orders
+
+mysql> select c.customerid, c.firstname, c.country, o.orderid, o.customerid, o.orderstatus, o.shipaddress from customers as c left join orders as o on c.customerid=o.customerid;
++------------+-----------+---------+---------+------------+-------------+--------------------+
+| customerid | firstname | country | orderid | customerid | orderstatus | shipaddress        |
++------------+-----------+---------+---------+------------+-------------+--------------------+
+|          1 | Jossef    | Germany |       3 |          1 | Delivered   | 8157 W. Book       |
+|          1 | Jossef    | Germany |       4 |          1 | Shipped     | 5724 Victory Lane  |
+|          1 | Jossef    | Germany |       7 |          1 | Delivered   | 136 Balboa Court   |
+|          2 | Kevin     | USA     |       1 |          2 | Delivered   | 9833 Mt. Dias Blv. |
+|          2 | Kevin     | USA     |       5 |          2 | Delivered   | NULL               |
+|          2 | Kevin     | USA     |       9 |          2 | Shipped     | 3768 Door Way      |
+|          3 | Mary      | USA     |       2 |          3 | Shipped     | 250 Race Court     |
+|          3 | Mary      | USA     |       6 |          3 | Delivered   | 1792 Belmont Rd.   |
+|          3 | Mary      | USA     |      10 |          3 | Shipped     | NULL               |
+|          4 | Mark      | Germany |       8 |          4 | Shipped     | 2947 Vine Lane     |
+|          5 | Anna      | USA     |    NULL |       NULL | NULL        | NULL               |
++------------+-----------+---------+---------+------------+-------------+--------------------+
+11 rows in set (0.00 sec)
+
+________________________________________________________________________________________________________________
+
+Right JOIN
+----------
+get all the customers along with their orders , including orders without matching customers
+
+mysql> select c.customerid, c.firstname, c.country, o.orderid, o.customerid, o.orderstatus, o.shipaddress from customers as c right join orders as o on c.customerid=o.customerid;
++------------+-----------+---------+---------+------------+-------------+--------------------+
+| customerid | firstname | country | orderid | customerid | orderstatus | shipaddress        |
++------------+-----------+---------+---------+------------+-------------+--------------------+
+|          2 | Kevin     | USA     |       1 |          2 | Delivered   | 9833 Mt. Dias Blv. |
+|          3 | Mary      | USA     |       2 |          3 | Shipped     | 250 Race Court     |
+|          1 | Jossef    | Germany |       3 |          1 | Delivered   | 8157 W. Book       |
+|          1 | Jossef    | Germany |       4 |          1 | Shipped     | 5724 Victory Lane  |
+|          2 | Kevin     | USA     |       5 |          2 | Delivered   | NULL               |
+|          3 | Mary      | USA     |       6 |          3 | Delivered   | 1792 Belmont Rd.   |
+|          1 | Jossef    | Germany |       7 |          1 | Delivered   | 136 Balboa Court   |
+|          4 | Mark      | Germany |       8 |          4 | Shipped     | 2947 Vine Lane     |
+|          2 | Kevin     | USA     |       9 |          2 | Shipped     | 3768 Door Way      |
+|          3 | Mary      | USA     |      10 |          3 | Shipped     | NULL               |
++------------+-----------+---------+---------+------------+-------------+--------------------+
+10 rows in set (0.00 sec)
+
+
+________________________________________________________________________________________________________________
+
+FULL JOIN
+----------
+
+Get all the customers and orders 
 
