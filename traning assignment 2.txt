@@ -1,0 +1,319 @@
+
+
+-----Created academy database------
+
+
+mysql> create database academy;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> use academy;
+Database changed
+
+
+------Created students table --------
+
+
+mysql> create table students(
+    -> student_id int primary key,
+    -> name varchar(100) not null,
+    -> email varchar(150) not null unique
+    -> );
+
+Query OK, 0 rows affected (0.02 sec)
+
+
+
+mysql> desc students;
++------------+--------------+------+-----+---------+-------+
+| Field      | Type         | Null | Key | Default | Extra |
++------------+--------------+------+-----+---------+-------+
+| student_id | int          | NO   | PRI | NULL    |       |
+| name       | varchar(100) | NO   |     | NULL    |       |
+| email      | varchar(150) | NO   | UNI | NULL    |       |
++------------+--------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+
+
+
+----Created courses table-----------
+
+
+mysql> create table courses(
+    -> course_id int primary key,
+    -> course_name varchar(150) not null
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+
+
+mysql> desc courses;
++-------------+--------------+------+-----+---------+-------+
+| Field       | Type         | Null | Key | Default | Extra |
++-------------+--------------+------+-----+---------+-------+
+| course_id   | int          | NO   | PRI | NULL    |       |
+| course_name | varchar(150) | NO   |     | NULL    |       |
++-------------+--------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+
+
+
+
+-----Created enrollments table with following rules ------
+
+1] A student can enroll in the same course multiple times
+
+2] Each enrollment represents one attempt
+
+
+mysql> create table enrollments (
+    ->     enrollment_id int primary key,
+    ->     student_id int not null,
+    ->     course_id int not null,
+    ->     score decimal(5,2),
+    ->     completed_at datetime,
+    ->
+    ->     constraint fk_student
+    ->         foreign key (student_id)
+    ->         references students(student_id)
+    ->         on delete cascade,
+    ->
+    ->     constraint fk_course
+    ->         foreign key (course_id)
+    ->         references courses(course_id)
+    ->         on delete cascade
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+
+
+mysql> desc enrollments;
++---------------+--------------+------+-----+---------+-------+
+| Field         | Type         | Null | Key | Default | Extra |
++---------------+--------------+------+-----+---------+-------+
+| enrollment_id | int          | NO   | PRI | NULL    |       |
+| student_id    | int          | NO   | MUL | NULL    |       |
+| course_id     | int          | NO   | MUL | NULL    |       |
+| score         | decimal(5,2) | YES  |     | NULL    |       |
+| completed_at  | datetime     | YES  |     | NULL    |       |
++---------------+--------------+------+-----+---------+-------+
+5 rows in set (0.00 sec)
+
+
+
+
+----Inserting values------
+
+Insert:
+
+Inserted 5 students
+
+Multiple enrollments per student
+mysql> insert into students (student_id, name, email) values
+    -> (1, 'pratik dahat', 'pratik.dahat@gmail.com'),
+    -> (2, 'siddesh amrutkar', 'siddesh.amrutkar@gmail.com'),
+    -> (3, 'vedant rane', 'vedant.rane@gmail.com'),
+    -> (4, 'div gabahane', 'div.gabahane@gmail.com'),
+    -> (5, 'parth deshmukh', 'parth.deshmukh@gmail.com');
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+
+mysql> select * from students;
++------------+------------------+----------------------------+
+| student_id | name             | email                      |
++------------+------------------+----------------------------+
+|          1 | pratik dahat     | pratik.dahat@gmail.com     |
+|          2 | siddesh amrutkar | siddesh.amrutkar@gmail.com |
+|          3 | vedant rane      | vedant.rane@gmail.com      |
+|          4 | div gabahane     | div.gabahane@gmail.com     |
+|          5 | parth deshmukh   | parth.deshmukh@gmail.com   |
++------------+------------------+----------------------------+
+5 rows in set (0.00 sec)
+
+
+
+----Inserted 4 courses-------------
+
+
+mysql> insert into courses (course_id, course_name) values
+    -> (101, 'database systems'),
+    -> (102, 'data structures'),
+    -> (103, 'web development'),
+    -> (104, 'operating systems');
+Query OK, 4 rows affected (0.00 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> select * from courses;
++-----------+-------------------+
+| course_id | course_name       |
++-----------+-------------------+
+|       101 | database systems  |
+|       102 | data structures   |
+|       103 | web development   |
+|       104 | operating systems |
++-----------+-------------------+
+4 rows in set (0.00 sec)
+
+
+
+-----Multiple Enrollment per student-----
+
+
+
+mysql> insert into enrollments (enrollment_id, student_id, course_id, score, completed_at)
+    -> values(1, 1, 101, 45.00, '2024-01-15 10:00:00');
+Query OK, 1 row affected (0.01 sec)
+
+
+mysql> insert into enrollments (enrollment_id, student_id, course_id, score, completed_at) values
+    -> (2, 1, 101, 78.50, '2024-03-10 11:30:00'),
+    -> (3, 1, 102, 88.00, '2024-02-20 09:00:00');
+Query OK, 2 rows affected (0.01 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+
++---------------+------------+-----------+-------+---------------------+
+| enrollment_id | student_id | course_id | score | completed_at        |
++---------------+------------+-----------+-------+---------------------+
+|             1 |          1 |       101 | 45.00 | 2024-01-15 10:00:00 |
+|             2 |          1 |       101 | 78.50 | 2024-03-10 11:30:00 |
+|             3 |          1 |       102 | 88.00 | 2024-02-20 09:00:00 |
++---------------+------------+-----------+-------+---------------------+
+3 rows in set (0.00 sec)
+
+
+mysql> insert into enrollments (enrollment_id, student_id, course_id, score, completed_at) values
+    -> (4, 2, 103, 55.00, '2024-01-25 14:00:00'),
+    -> (5, 2, 103, 72.00, '2024-04-12 16:00:00'),
+    -> (6, 2, 104, 81.00, '2024-03-05 12:00:00');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> select * from enrollments;
++---------------+------------+-----------+-------+---------------------+
+| enrollment_id | student_id | course_id | score | completed_at        |
++---------------+------------+-----------+-------+---------------------+
+|             1 |          1 |       101 | 45.00 | 2024-01-15 10:00:00 |
+|             2 |          1 |       101 | 78.50 | 2024-03-10 11:30:00 |
+|             3 |          1 |       102 | 88.00 | 2024-02-20 09:00:00 |
+|             4 |          2 |       103 | 55.00 | 2024-01-25 14:00:00 |
+|             5 |          2 |       103 | 72.00 | 2024-04-12 16:00:00 |
+|             6 |          2 |       104 | 81.00 | 2024-03-05 12:00:00 |
++---------------+------------+-----------+-------+---------------------+
+6 rows in set (0.00 sec)
+
+
+
+
+
+mysql> insert into enrollments (enrollment_id, student_id, course_id, score, completed_at) values
+    -> (7, 3, 101, 60.00, '2024-02-01 10:30:00'),
+    -> (8, 3, 102, 49.00, '2024-02-18 15:00:00'),
+    -> (9, 3, 102, 85.00, '2024-05-01 09:45:00');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+
+mysql> select * from enrollments;
++---------------+------------+-----------+-------+---------------------+
+| enrollment_id | student_id | course_id | score | completed_at        |
++---------------+------------+-----------+-------+---------------------+
+|             1 |          1 |       101 | 45.00 | 2024-01-15 10:00:00 |
+|             2 |          1 |       101 | 78.50 | 2024-03-10 11:30:00 |
+|             3 |          1 |       102 | 88.00 | 2024-02-20 09:00:00 |
+|             4 |          2 |       103 | 55.00 | 2024-01-25 14:00:00 |
+|             5 |          2 |       103 | 72.00 | 2024-04-12 16:00:00 |
+|             6 |          2 |       104 | 81.00 | 2024-03-05 12:00:00 |
+|             7 |          3 |       101 | 60.00 | 2024-02-01 10:30:00 |
+|             8 |          3 |       102 | 49.00 | 2024-02-18 15:00:00 |
+|             9 |          3 |       102 | 85.00 | 2024-05-01 09:45:00 |
++---------------+------------+-----------+-------+---------------------+
+9 rows in set (0.00 sec)
+
+
+
+
+
+mysql> insert into enrollments (enrollment_id, student_id, course_id, score, completed_at) values
+    -> (10, 4, 104, 91.00, '2024-03-22 13:15:00'),
+    -> (11, 4, 101, 67.00, '2024-04-18 10:10:00');
+Query OK, 2 rows affected (0.01 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+
+
+mysql> insert into enrollments (enrollment_id, student_id, course_id, score, completed_at) values
+     -> (12, 5, 103, 73.00, '2024-01-30 11:00:00'),
+     -> (13, 5, 103, 89.00, '2024-05-20 14:20:00'),   
+     -> (14, 5, 102, 77.00, '2024-03-28 09:30:00');
+
+ Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+
+
+mysql> select * from enrollments;
++---------------+------------+-----------+-------+---------------------+
+| enrollment_id | student_id | course_id | score | completed_at        |
++---------------+------------+-----------+-------+---------------------+
+|             1 |          1 |       101 | 45.00 | 2024-01-15 10:00:00 |
+|             2 |          1 |       101 | 78.50 | 2024-03-10 11:30:00 |
+|             3 |          1 |       102 | 88.00 | 2024-02-20 09:00:00 |
+|             4 |          2 |       103 | 55.00 | 2024-01-25 14:00:00 |
+|             5 |          2 |       103 | 72.00 | 2024-04-12 16:00:00 |
+|             6 |          2 |       104 | 81.00 | 2024-03-05 12:00:00 |
+|             7 |          3 |       101 | 60.00 | 2024-02-01 10:30:00 |
+|             8 |          3 |       102 | 49.00 | 2024-02-18 15:00:00 |
+|             9 |          3 |       102 | 85.00 | 2024-05-01 09:45:00 |
+|            10 |          4 |       104 | 91.00 | 2024-03-22 13:15:00 |
+|            11 |          4 |       101 | 67.00 | 2024-04-18 10:10:00 |
+|            12 |          5 |       103 | 73.00 | 2024-01-30 11:00:00 |
+|            13 |          5 |       103 | 89.00 | 2024-05-20 14:20:00 |
+|            14 |          5 |       102 | 77.00 | 2024-03-28 09:30:00 |
++---------------+------------+-----------+-------+---------------------+
+14 rows in set (0.00 sec)
+
+
+
+Task - Use aggregate functions.
+
+Write a query to find:
+
+Average score obtained by all students for a given course
+
+
+mysql> select course_id, avg(score) from enrollments where course_id=101 group by course_id;
++-----------+------------+
+| course_id | avg(score) |
++-----------+------------+
+|       101 |  62.625000 |
++-----------+------------+
+1 row in set (0.00 sec)
+
+
+-----------------------------------------------------------------------
+
+For a given student:
+
+Display all courses taken
+
+Show all scores
+
+Show completion date
+
+----------------------------
+
+mysql> select s.name, c.course_name, e.completed_at from enrollments e join students s on e.student_id=s.student_id
+    -> join courses c on e.course_id=c.course_id where s.student_id=1 order by e.completed_at;
++--------------+------------------+---------------------+
+| name         | course_name      | completed_at        |
++--------------+------------------+---------------------+
+| pratik dahat | database systems | 2024-01-15 10:00:00 |
+| pratik dahat | data structures  | 2024-02-20 09:00:00 |
+| pratik dahat | database systems | 2024-03-10 11:30:00 |
++--------------+------------------+---------------------+
+
+
+
