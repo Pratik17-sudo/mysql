@@ -1,0 +1,79 @@
+Confluence training assignments
+
+
+
+---------Created table users---------
+
+
+mysql> use user_management;
+Database changed
+mysql> create table users(
+    -> id int primary key,
+    -> name varchar(100) not null,
+    -> email varchar(110) not null unique,
+    -> contact varchar(20)
+    -> );
+
+Query OK, 0 rows affected (0.03 sec)
+
+
+mysql> desc users;
++---------+--------------+------+-----+---------+-------+
+| Field   | Type         | Null | Key | Default | Extra |
++---------+--------------+------+-----+---------+-------+
+| id      | int          | NO   | PRI | NULL    |       |
+| name    | varchar(100) | NO   |     | NULL    |       |
+| email   | varchar(110) | NO   | UNI | NULL    |       |
+| contact | varchar(20)  | YES  |     | NULL    |       |
++---------+--------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+
+
+
+-----Inserting values---------
+
+mysql> insert into users(id,name,email,contact)
+    -> values (1,"Pratik Dahat", "pratikdahat07@gmail.com","8261876534");
+
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into users(id,name,email,contact)
+    -> values (2,"Siddesh Amrutkar", "siddesh7@gmail.com","8261876454");
+
+Query OK, 1 row affected (0.00 sec)
+
+
+mysql> select * from users;
++----+------------------+-------------------------+------------+
+| id | name             | email                   | contact    |
++----+------------------+-------------------------+------------+
+|  1 | Pratik Dahat     | pratikdahat07@gmail.com | 8261876534 |
+|  2 | Siddesh Amrutkar | siddesh7@gmail.com      | 8261876454 |
++----+------------------+-------------------------+------------+
+2 rows in set (0.00 sec)
+
+
+
+
+---- Attempt to insert duplicate id -----
+
+
+mysql> insert into users(id,name,email,contact)
+    -> values (2,"Siddesh Amrutkar", "siddesh7@gmail.com","8261876454");
+ERROR 1062 (23000): Duplicate entry '2' for key 'users.PRIMARY'
+
+
+
+-----Attempt to insert duplicate email------
+
+mysql> insert into users(id,name,email,contact)
+    -> values (6,"Siddesh Amrutkar", "siddesh7@gmail.com","8261876454");
+ERROR 1062 (23000): Duplicate entry 'siddesh7@gmail.com' for key 'users.email'
+
+
+
+
+
+
+
