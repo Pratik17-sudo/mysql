@@ -198,6 +198,22 @@ mysql> select c.firstname, c.country, o.orderdate, o.shipaddress, o.billaddress 
 +-----------+---------+------------+--------------------+---------------+
 10 rows in set (0.00 sec)
 
+
+
+>>>Get the sales for each product
+
+
+mysql> select p.product,sum(o.sales) from products as p inner join orders as o on o.productid=p.productid group by p.product;
++---------+--------------+
+| product | sum(o.sales) |
++---------+--------------+
+| Bottle  |          140 |
+| Tire    |          105 |
+| Gloves  |           60 |
+| Caps    |           75 |
++---------+--------------+
+4 rows in set (0.00 sec)
+
 ________________________________________________________________________________________________________________
 
 Left JOIN 
@@ -248,8 +264,374 @@ mysql> select c.customerid, c.firstname, c.country, o.orderid, o.customerid, o.o
 
 ________________________________________________________________________________________________________________
 
-FULL JOIN
-----------
+----- Union -------
 
-Get all the customers and orders 
+combine data from emplyees and customers
+
+mysql> select firstname,lastname from customers union select firstname,lastname from employees;
++-----------+----------+
+| firstname | lastname |
++-----------+----------+
+| Jossef    | Goldberg |
+| Kevin     | Brown    |
+| Mary      | NULL     |
+| Mark      | Schwarz  |
+| Anna      | Adams    |
+| Frank     | Lee      |
+| Michael   | Ray      |
+| Carol     | Baker    |
++-----------+----------+
+8 rows in set (0.01 sec)
+
+________________________________________________________________________________________________________________
+
+
+
+find the employees who are not customer at the same time 
+
+
+
+-----Union all includes the duplicate------
+
+mysql> select firstname as name,lastname from customers union all select firstname,lastname from employees;
++---------+----------+
+| name    | lastname |
++---------+----------+
+| Jossef  | Goldberg |
+| Kevin   | Brown    |
+| Mary    | NULL     |
+| Mark    | Schwarz  |
+| Anna    | Adams    |
+| Frank   | Lee      |
+| Kevin   | Brown    |
+| Mary    | NULL     |
+| Michael | Ray      |
+| Carol   | Baker    |
++---------+----------+
+10 rows in set (0.00 sec)
+
+_________________________________________________________________________________________________
+
+Some string fucntions
+
+
+mysql> select char_length(firstname) from customers where customerid=1;
++------------------------+
+| char_length(firstname) |
++------------------------+
+|                      6 |
++------------------------+
+1 row in set (0.00 sec)
+
+
+
+mysql> select character_length(firstname) from customers where customerid=1;
++-----------------------------+
+| character_length(firstname) |
++-----------------------------+
+|                           6 |
++-----------------------------+
+1 row in set (0.00 sec)
+
+
+
+
+
+mysql> select ASCII(firstname) from customers where customerid=1;
++------------------+
+| ASCII(firstname) |
++------------------+
+|               74 |
++------------------+
+1 row in set (0.00 sec)
+
+
+
+
+
+
+
+
+mysql> select concat(firstname," ",lastname) from customers where customerid=1;
++--------------------------------+
+| concat(firstname," ",lastname) |
++--------------------------------+
+| Jossef Goldberg                |
++--------------------------------+
+1 row in set (0.00 sec)
+
+____________________________________________________________________________________________
+
+
+left and right functions
+----------------------------------
+
+mysql> select right(firstname, 5) from customers where customerid=1;
++---------------------+
+| right(firstname, 5) |
++---------------------+
+| ossef               |
++---------------------+
+1 row in set (0.00 sec)
+
+
+mysql> select right(firstname, 3) from customers where customerid=1;
++---------------------+
+| right(firstname, 3) |
++---------------------+
+| sef                 |
++---------------------+
+1 row in set (0.00 sec)
+
+
+
+mysql> select left(firstname, 3) from customers where customerid=1;
++--------------------+
+| left(firstname, 3) |
++--------------------+
+| Jos                |
++--------------------+
+1 row in set (0.00 sec)
+
+_________________________________________________________________________________
+
+mysql> select length(firstname) from customers where customerid=1;
++-------------------+
+| length(firstname) |
++-------------------+
+|                 6 |
++-------------------+
+1 row in set (0.00 sec)
+
+
+
+____________________________________________________________________________________
+
+
+trim fucntions 
+
+
+mysql> select ('          sql tutirial       ') as trimmedstring;
++-------------------------------+
+| trimmedstring                 |
++-------------------------------+
+|           sql tutirial        |
++-------------------------------+
+1 row in set (0.00 sec)
+
+
+
+mysql> select rtrim('sql tutorial          ') as trimmedstring;
++---------------+
+| trimmedstring |
++---------------+
+| sql tutorial  |
++---------------+
+1 row in set (0.00 sec)
+
+
+
+
+mysql> select ltrim('         sql tutorial') as trimmedstring;
++---------------+
+| trimmedstring |
++---------------+
+| sql tutorial  |
++---------------+
+1 row in set (0.00 sec)
+
+
+
+
+
+
+mysql> select ltrim('         sql tutorial          ') as trimmedstring;
++------------------------+
+| trimmedstring          |
++------------------------+
+| sql tutorial           |
++------------------------+
+1 row in set (0.00 sec)
+
+
+
+_________________________________________________________________________________________
+
+
+Case when statement Example
+
+
+mysql> select firstname, score ,
+    -> case
+    -> when score>700 then 'The score is greter than 700'
+    -> when score<500 then 'The score is less than 500'
+    -> else 'The score is not valid'
+    -> end
+    -> from customers;
++-----------+-------+--------------------------------------------------------------------------------------------------------------------------------------------+
+| firstname | score | case
+when score>700 then 'The score is greter than 700'
+when score<500 then 'The score is less than 500'
+else 'The score is not valid'
+end |
++-----------+-------+--------------------------------------------------------------------------------------------------------------------------------------------+
+| Jossef    |   350 | The score is less than 500                                                                                                                 |
+| Kevin     |   900 | The score is greter than 700                                                                                                               |
+| Mary      |   750 | The score is greter than 700                                                                                                               |
+| Mark      |   400 | The score is less than 500                                                                                                                 |
+| Anna      |  NULL | The score is not valid                                                                                                                     |
++-----------+-------+--------------------------------------------------------------------------------------------------------------------------------------------+
+5 rows in set (0.00 sec)
+
+____________________________________________________________________________________________________________________
+
+
+
+
+----------Partion By-------------------
+
+
+
+mysql> select productid,orderid, orderstatus, sum(sales) over() as total_Sales, sum(sales) over(partition by productid) as total_sales_of_product, sales from orders;
++-----------+---------+-------------+-------------+------------------------+-------+
+| productid | orderid | orderstatus | total_Sales | total_sales_of_product | sales |
++-----------+---------+-------------+-------------+------------------------+-------+
+|       101 |       1 | Delivered   |         380 |                    140 |    10 |
+|       101 |       3 | Delivered   |         380 |                    140 |    20 |
+|       101 |       8 | Shipped     |         380 |                    140 |    90 |
+|       101 |       9 | Shipped     |         380 |                    140 |    20 |
+|       102 |       2 | Shipped     |         380 |                    105 |    15 |
+|       102 |       7 | Delivered   |         380 |                    105 |    30 |
+|       102 |      10 | Shipped     |         380 |                    105 |    60 |
+|       104 |       5 | Delivered   |         380 |                     75 |    25 |
+|       104 |       6 | Delivered   |         380 |                     75 |    50 |
+|       105 |       4 | Shipped     |         380 |                     60 |    60 |
++-----------+---------+-------------+-------------+------------------------+-------+
+10 rows in set (0.00 sec)
+
+
+
+-----order by clause in window fucntion----------
+
+
+It is compulsory to use order by clause in case of rank and value function. === Required
+
+
+
+
+mysql> select orderid, orderdate,sales, rank() over(order by sales desc) as Lowest_Highest from orders;
++---------+------------+-------+----------------+
+| orderid | orderdate  | sales | Lowest_Highest |
++---------+------------+-------+----------------+
+|       8 | 2025-02-18 |    90 |              1 |
+|       4 | 2025-01-20 |    60 |              2 |
+|      10 | 2025-03-15 |    60 |              2 |
+|       6 | 2025-02-05 |    50 |              4 |
+|       7 | 2025-02-15 |    30 |              5 |
+|       5 | 2025-02-01 |    25 |              6 |
+|       3 | 2025-01-10 |    20 |              7 |
+|       9 | 2025-03-10 |    20 |              7 |
+|       2 | 2025-01-05 |    15 |              9 |
+|       1 | 2025-01-01 |    10 |             10 |
++---------+------------+-------+----------------+
+10 rows in set (0.00 sec)
+
+
+
+Frame clause
+
+
+
+mysql> select orderid, orderdate,orderstatus, sales, sum(sales) over(partition by orderstatus order by sales rows between current row and 2 following) as Frame_Example from orders;
++---------+------------+-------------+-------+---------------+
+| orderid | orderdate  | orderstatus | sales | Frame_Example |
++---------+------------+-------------+-------+---------------+
+|       1 | 2025-01-01 | Delivered   |    10 |            55 |
+|       3 | 2025-01-10 | Delivered   |    20 |            75 |
+|       5 | 2025-02-01 | Delivered   |    25 |           105 |
+|       7 | 2025-02-15 | Delivered   |    30 |            80 |
+|       6 | 2025-02-05 | Delivered   |    50 |            50 |
+|       2 | 2025-01-05 | Shipped     |    15 |            95 |
+|       9 | 2025-03-10 | Shipped     |    20 |           140 |
+|       4 | 2025-01-20 | Shipped     |    60 |           210 |
+|      10 | 2025-03-15 | Shipped     |    60 |           150 |
+|       8 | 2025-02-18 | Shipped     |    90 |            90 |
++---------+------------+-------------+-------+---------------+
+10 rows in set (0.00 sec)
+
+
+using group by and window functions together 
+
+mysql> select customerid, sum(sales) as total_sales, rank() over(order by sum(sales) desc) as Rank_Customers from orders group by customerid;
++------------+-------------+----------------+
+| customerid | total_sales | Rank_Customers |
++------------+-------------+----------------+
+|          3 |         125 |              1 |
+|          1 |         110 |              2 |
+|          4 |          90 |              3 |
+|          2 |          55 |              4 |
++------------+-------------+----------------+
+4 rows in set (0.00 sec)
+
+
+
+
+
+
+
+
+______________________________________________________________________________________________
+
+
+Subquery 
+Customer who has placed atleast one order 
+
+
+mysql> select firstname,lastname from customers where customerid in (select customerid from orders);
++-----------+----------+
+| firstname | lastname |
++-----------+----------+
+| Jossef    | Goldberg |
+| Kevin     | Brown    |
+| Mary      | NULL     |
+| Mark      | Schwarz  |
++-----------+----------+
+
+__________________________________________________________________________________________________________
+
+
+Employees earning above average salary
+
+
+mysql> select firstname, lastname from employees where salary > (select avg(salary) from employees);
++-----------+----------+
+| firstname | lastname |
++-----------+----------+
+| Mary      | NULL     |
+| Michael   | Ray      |
++-----------+----------+
+2 rows in set (0.00 sec)
+
+
+
+Customers who placed at least one order
+
+
+
+mysql> select firstname,lastname from customers where customerid in (select distinct customerid from orders);
++-----------+----------+
+| firstname | lastname |
++-----------+----------+
+| Jossef    | Goldberg |
+| Kevin     | Brown    |
+| Mary      | NULL     |
+| Mark      | Schwarz  |
++-----------+----------+
+4 rows in set (0.00 sec)
+
+__________________________________________________________________________________________________________________________
+
+
+
+
 
